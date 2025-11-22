@@ -3,7 +3,7 @@ import 'package:flutter_note/helpers/db_helper.dart';
 import 'package:flutter_note/models/note_model.dart';
 
 class NoteEditorPage extends StatefulWidget {
-  const NoteEditorPage({Key? key}) : super(key: key);
+  const NoteEditorPage({super.key});
 
   @override
   State<NoteEditorPage> createState() => _NoteEditorPageState();

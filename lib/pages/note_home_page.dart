@@ -22,8 +22,6 @@ class _NoteListPageState extends State<NoteHomePage> {
   }
 
   Future<void> _loadNotes() async {
-    // TODO: Load notes from database
-    // Simulating database with sample data
     final noteList = await dbHelper.fetchNotes();
 
     setState(() {
@@ -72,10 +70,10 @@ class _NoteListPageState extends State<NoteHomePage> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Delete from database
-              // setState(() {
-              //   //_notes.removeWhere((note) => note.id == noteId);
-              // });
+              setState(() {
+                dbHelper.deleteItem(noteId);
+                _loadNotes();
+              });
               Navigator.pop(context);
               ScaffoldMessenger.of(
                 context,
