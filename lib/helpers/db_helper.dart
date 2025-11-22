@@ -11,8 +11,6 @@ class DbHelper {
   static final DbHelper instance = DbHelper._privateConstructor();
 
   Future<Database> _initialDatabase() async {
-    // Implementation for initializing the database
-    // This is a placeholder; actual implementation will vary
     return await openDatabase(
       join(await getDatabasesPath(), _databaseName),
       version: _databaseVersion,
@@ -52,6 +50,22 @@ class DbHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     return id;
+  }
+
+  Future<int> updateItem(NoteModel note) async {
+    final db = await database;
+    return db.update(
+      _tableName,
+      note.toJson(),
+      where: 'note_id = ?',
+      whereArgs: [note.noteId],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<int> deleteItem(int noteId) async {
+    final db = await database;
+    return db.delete(_tableName, where: 'note_id = ?', whereArgs: [noteId]);
   }
 
   Future<List<NoteModel>> fetchNotes() async {
