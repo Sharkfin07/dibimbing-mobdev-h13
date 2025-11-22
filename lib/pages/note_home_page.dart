@@ -43,18 +43,14 @@ class _NoteListPageState extends State<NoteHomePage> {
   }
 
   void _navigateToEditNote(NoteModel note) async {
-    // Navigate to edit note page
-    // final result = await Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => NoteEditorPage(note: note),
-    //   ),
-    // );
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => NoteEditorPage(note: note)),
+    );
 
-    // Reload notes after returning from edit page
-    // if (result != null) {
-    //   _loadNotes();
-    // }
+    if (result != null) {
+      _loadNotes();
+    }
   }
 
   void _deleteNote(int noteId) {

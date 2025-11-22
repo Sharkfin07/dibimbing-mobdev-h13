@@ -3,7 +3,9 @@ import 'package:flutter_note/helpers/db_helper.dart';
 import 'package:flutter_note/models/note_model.dart';
 
 class NoteEditorPage extends StatefulWidget {
-  const NoteEditorPage({super.key});
+  final NoteModel? note;
+
+  const NoteEditorPage({super.key, this.note});
 
   @override
   State<NoteEditorPage> createState() => _NoteEditorPageState();
@@ -15,6 +17,17 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
+
+  bool get _isEditing => widget.note != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      _titleController.text = widget.note!.title;
+      _contentController.text = widget.note!.content;
+    }
+  }
 
   @override
   void dispose() {
@@ -28,28 +41,29 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       // Get the note data
       final title = _titleController.text;
       final content = _contentController.text;
-
-      final result = dbHelper.insertItem(
-        NoteModel(
-          noteId: null,
-          title: title,
-          content: content,
-          createdAt: DateTime.now().toIso8601String(),
-          updatedAt: DateTime.now().toIso8601String(),
-          pinned: false,
-        ),
+      final now = DateTime.now().toIso8601String();
+      final note = NoteModel(
+        noteId: _isEditing ? widget.note!.noteId : null,
+        title: title,
+        content: content,
+        createdAt: _isEditing ? widget.note!.createdAt : now,
+        updatedAt: now,
+        pinned: _isEditing ? widget.note!.pinned : false,
       );
 
-      // TODO: Save the note to database or storage
-      print(
-        'Saving note - Title: $title, Content: $content, Id: ${await result}',
-      );
+      final result = _isEditing
+          ? await dbHelper.updateItem(note)
+          : await dbHelper.insertItem(note);
 
-      // Show success message
-      if (await result > 0) {
+      final success = _isEditing ? result > 0 : result > 0;
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note saved successfully!'),
+          SnackBar(
+            content: Text(
+              _isEditing
+                  ? 'Note updated successfully!'
+                  : 'Note saved successfully!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -94,7 +108,10 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Note'), elevation: 0),
+      appBar: AppBar(
+        title: Text(_isEditing ? 'Edit Note' : 'New Note'),
+        elevation: 0,
+      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -167,7 +184,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
                     child: ElevatedButton.icon(
                       onPressed: _saveNote,
                       icon: const Icon(Icons.save),
-                      label: const Text('Save'),
+                      label: Text(_isEditing ? 'Update' : 'Save'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
